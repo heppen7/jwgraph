@@ -1,23 +1,28 @@
 import os
 import sys
-from gql import Client
-from gql.transport.aiohttp import AIOHTTPTransport
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'lib'))
+
+from gql import Client 
+from gql.transport.requests import RequestsHTTPTransport
 
 from queries import SUGGESTED_TITLES
 from queries import TITLE_OFFERS
 from queries import URL_TITLE_DETAILS
 from queries import NEW_TITLE_BUCKETS
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__)))
-
 
 class JustWatchAPI:
 
     def __init__(self):
         self.base_url: str = 'https://apis.justwatch.com/graphql'
-        self.transport = AIOHTTPTransport(url=self.base_url)
-        self.client = Client(transport=self.transport,
-                             fetch_schema_from_transport=False)
+        self.transport = RequestsHTTPTransport(
+            url=self.base_url,
+            verify=True,
+            retries=3,
+        )
+
+        self.client = Client(transport=self.transport, fetch_schema_from_transport=False)
 
     def search_item(self, title: str):
         params = {
